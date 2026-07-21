@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Varnax Security</title>
+  <style>
+    body {font-family: Arial; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #111; color: white; padding: 20px; margin:0;}
+    .box {background: #222; padding: 30px; border-radius: 12px; width: 100%; max-width: 420px;}
+    input {padding: 12px; width: 100%; border: none; border-radius: 8px; margin-bottom: 15px; font-size: 16px; box-sizing: border-box; background:#333; color:white;}
+    button {padding: 12px; width: 100%; border: none; border-radius: 8px; background: #00ff88; color: black; font-weight: bold; font-size: 16px; cursor: pointer; margin-bottom: 10px;}
+    .btn-wa {background: #25D366; color: white;} .btn-tele {background: #0088cc; color: white;} .btn-cek {background: #ff4444; color: white;}
+    #hasil {margin-top: 15px; padding: 15px; border-radius: 8px; text-align: left; font-size: 14px; display:none;}
+    #ciri {margin-top: 15px; padding: 15px; border-radius: 8px; background: #2a2a2a; text-align: left; font-size: 14px;}
+    .aman {background: #004d00; border-left: 4px solid #00ff88;} .bahaya {background: #4d0000; border-left: 4px solid #ff4444;} hr {border: 1px solid #333; margin: 20px 0;}
+    h2 {text-align:center; color:#00ff88;}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>🛡️ Varnax Security</h2>
+
+    <h4>1. Cek Nomor Penipu</h4>
+    <input type="tel" id="inputCekNomor" placeholder="Contoh: 0812xxx">
+    <button id="btnCekNomor" class="btn-cek">Cek Sekarang</button>
+    <div id="hasil"></div>
+
+    <hr>
+    <h4>2. Ciri-ciri Penipu Online</h4>
+    <div id="ciri">
+      <ul><li>Minta TF duluan alasan "admin fee"</li><li>Harga terlalu murah</li><li>Buru-buruin "transfer sekarang"</li></ul>
+    </div>
+
+    <hr>
+    <button id="btnWA" class="btn-wa">💬 Chat Admin via WhatsApp</button>
+    <button id="btnTele" class="btn-tele">✈️ Chat Admin via Telegram @rixz_crasher</button>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+  // INI UDAH KESAMBUNG KE FIREBASE KAMU
+  const app = initializeApp({databaseURL: "https://varnaxvloid-ff960-default-rtdb.asia-southeast1.firebasedatabase.app"});
+  const db = getDatabase(app);
+
+  const nomorAdmin = "082162086944";
+  const usernameTele = "rixz_crasher";
+  let daftarNomorPenipu = []; 
+
+  // AMBIL DATA DARI FIREBASE -> penipu
+  async function loadDataPenipu() {
+    const snapshot = await get(ref(db, "penipu"));
+    if(snapshot.exists()) {
+      daftarNomorPenipu = Object.values(snapshot.val());
+      console.log("Data penipu ke-load:", daftarNomorPenipu);
+    }
+  }
+  loadDataPenipu();
+
+  document.getElementById("btnCekNomor").onclick = function() {
+    let nomor = document.getElementById("inputCekNomor").value.replace(/\s/g, "");
+    const hasilDiv = document.getElementById("hasil");
+    hasilDiv.style.display = "block";
+    if(nomor === "") return alert("Isi nomor dulu");
+    if(nomor.startsWith("0")) nomor = "62" + nomor.substring(1);
+
+    if(daftarNomorPenipu.includes(nomor) || daftarNomorPenipu.includes("0" + nomor.substring(2))) {
+      hasilDiv.className = "bahaya";
+      hasilDiv.innerHTML = `<b>🚨 BAHAYA! NOMOR INI TERINDIKASI PENIPU</b><br>Nomor: ${nomor}`;
+    } else {
+      hasilDiv.className = "aman";
+      hasilDiv.innerHTML = `<b>✅ AMAN</b><br>Nomor: ${nomor}`;
+    }
+  }
+
+  document.getElementById("btnWA").onclick = () => window.open(`https://wa.me/62${nomorAdmin.substring(1)}?text=Halo%20Admin%20Varnax`, '_blank');
+  document.getElementById("btnTele").onclick = () => window.open(`https://t.me/${usernameTele}`, '_blank');
+</script>
+</body>
+</html>
